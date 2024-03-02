@@ -17,6 +17,8 @@ class CreateAccount extends Controller
 
             $this->createProfile($user);
 
+            SendWelcomeEmail::dispatch($user);
+
             return fractal($user, new UserTransformer())->respond(301);
         });
     }

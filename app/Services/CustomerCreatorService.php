@@ -4,8 +4,6 @@ namespace App\Services;
 use App\Contracts\Actions\Users\CustomerCreator;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\Welcome;
 
 class CustomerCreatorService implements CustomerCreator
 {
@@ -18,8 +16,6 @@ class CustomerCreatorService implements CustomerCreator
         ]);
 
         $user->wallet()->create();
-
-        Mail::to($user->email)->send(new Welcome($user));
 
         return $user;
     }
