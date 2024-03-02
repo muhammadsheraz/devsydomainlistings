@@ -17,6 +17,8 @@ class CustomerCreatorService implements CustomerCreator
             'password' => Hash::make($data['password']),
         ]);
 
+        $user->wallet()->create();
+
         Mail::to($user->email)->send(new Welcome($user));
 
         return $user;
