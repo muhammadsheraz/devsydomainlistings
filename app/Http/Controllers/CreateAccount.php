@@ -10,10 +10,10 @@ use Illuminate\Support\Facades\DB;
 
 class CreateAccount extends Controller
 {
-    public function __invoke(CreateAccountRequest $request)
+    public function __invoke(CreateAccountRequest $request, CustomerCreator $creator)
     {
-        return DB::transaction(function () use ($request) {
-            $user = app()->make(CustomerCreator::class)->handle($request->validated());
+        return DB::transaction(function () use ($request, $creator) {
+            $user = $creator->handle($request->validated());
 
             $this->createProfile($user);
 
