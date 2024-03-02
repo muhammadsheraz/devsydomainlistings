@@ -8,17 +8,44 @@ use App\Http\Requests\AuthenticateUserRequest;
 use App\Models\TwoFactorAuth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Session\TokenMismatchException;
 
 class LoginController extends Controller
 {
+    /**
+     * Authenticate a user using email and password.
+     *
+     * @param  \App\Http\Requests\AuthenticateUserRequest  $request
+     * @return \Illuminate\Http\Response
+     *
+     * @throws \Illuminate\Session\TokenMismatchException
+     */
     public function authenticate(AuthenticateUserRequest $request)
     {
+        /** Story 1 Solution
+         * This is just a manual implementation to demonstrate the CSRF tokens validation.
+         * Whereas Laravel already has a middleware to handle this, we only need to add
+         * the middleware to the route and @csrf (blade directive) to the form.
+        */
+
+        // Retrieve the CSRF token from the request
+        $token = $request->input('_token');
+
+        // Compare the CSRF token in the request with the one stored in the session
+        if (! $request->session()->token() == $token) {
+            // If the tokens do not match, throw a TokenMismatchException
+            throw new TokenMismatchException;
+        }
+        /********************************************************************************/
+
+        // Authenticate the user
         return DB::transaction(function () use ($request) {
             $user = app()->make(UserAuthenticator::class)->handle(
                 $request->validated('email'),
                 $request->validated('password')
             );
 
+            // If the user is not found, return a 401 response
             if ($user === false) {
                 return response()->json([
                     'message' => 'Invalid credentials.',
@@ -27,11 +54,13 @@ class LoginController extends Controller
 
             $token = $user->createToken('test')->plainTextToken;
 
+            // Create a new TwoFactorAuth record
             TwoFactorAuth::create([
                 'user_id' => $user->id,
                 'code' => $otp = random_int(1000, 9999),
             ]);
 
+            // Send the OTP to the user
             Mail::to($user)->send(new \App\Mail\TwoFactorAuthOtp($otp));
 
             return response()->json([
@@ -43,6 +72,9 @@ class LoginController extends Controller
         });
     }
 
+    /**
+     * Authenticate a user using two-factor authentication.
+     */
     public function twoFactorAuthentication(AuthenticateByTwoFactorRequest $request)
     {
         $twoFactorAuth = TwoFactorAuth::where('code', $request->validated('otp'))->first();
@@ -52,7 +84,7 @@ class LoginController extends Controller
                 'message' => 'Invalid OTP.',
             ], 401);
         }
-        
+
         return response()->json();
     }
 }
