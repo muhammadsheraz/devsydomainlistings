@@ -55,9 +55,15 @@ class LoginController extends Controller
             $token = $user->createToken('test')->plainTextToken;
 
             // Create a new TwoFactorAuth record
+
+            /** Story 2 Solution
+             * Added expires_at column to the two_factor_auths table to store the expiration date of the OTP.
+             * With the expiration time of 2 minutes
+            */
             TwoFactorAuth::create([
                 'user_id' => $user->id,
                 'code' => $otp = random_int(1000, 9999),
+                'expires_at' => now()->addMinutes(2),
             ]);
 
             // Send the OTP to the user
@@ -79,9 +85,9 @@ class LoginController extends Controller
     {
         $twoFactorAuth = TwoFactorAuth::where('code', $request->validated('otp'))->first();
 
-        if ($twoFactorAuth === null) {
+        if ($twoFactorAuth === null || now()->greaterThan($twoFactorAuth->expires_at)) {
             return response()->json([
-                'message' => 'Invalid OTP.',
+                'message' => 'Invalid or expired OTP.',
             ], 401);
         }
 
