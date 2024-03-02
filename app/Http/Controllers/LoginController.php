@@ -46,9 +46,9 @@ class LoginController extends Controller
             );
 
             // If the user is not found, return a 401 response
-            if ($user === false) {
+            if ($user === false || ! Hash::check($request->password, $user->password)) {
                 return response()->json([
-                    'message' => 'Invalid credentials.',
+                    'message' => 'The provided credentials are incorrect.',
                 ], 401);
             }
 
