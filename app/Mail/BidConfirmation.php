@@ -2,33 +2,34 @@
 
 namespace App\Mail;
 
-use App\Models\User;
+use App\Models\Bid;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Jobs\SendBidConfirmationEmail;
 
-class Welcome extends Mailable implements ShouldQueue
+class BidConfirmation extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
+
+    protected $bid;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(protected string $userName)
+    public function __construct(Bid $bid)
     {
-        //
+        $this->bid = $bid;
     }
 
-    /**
+        /**
      * Get the message envelope.
      */
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Welcome to the application',
+            subject: 'Your bid is the highest on the "' . $this->bid->domain->name . '" domain!',
         );
     }
 
@@ -38,7 +39,7 @@ class Welcome extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            markdown: 'mail.welcome',
+            markdown: 'mail.bid-confirmation',
             with: [
                 'user_name' => $this->userName,
             ],

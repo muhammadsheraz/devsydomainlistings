@@ -7,6 +7,7 @@ use App\Contracts\Actions\Users\CustomerCreator;
 use App\Http\Transformers\UserTransformer;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use App\Jobs\SendWelcomeEmail;
 
 class CreateAccount extends Controller
 {

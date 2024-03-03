@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Enums\DomainStatus;
+use App\Enums\DomainDepositType;
 
 class Domain extends Model
 {
@@ -13,16 +14,27 @@ class Domain extends Model
     protected $guarded = [];
 
     protected $fillable = [
-        'name', 'exists_since', 'starting_date', 'ending_date', 'target_amount',
-        'minimum_bid_increment', 'starting_amount', 'status'
+        'domain', 'exists_since', 'starting_date', 'ending_date', 'target_price',
+        'minimum_bid_increment', 'starting_price', 'status','deposit_type', 'deposit_amount'
     ];
 
     /**
-     * Domain statuses attributes to be cast.
+     * Domain statuses and deposit type attributes to be cast.
      *
      * @var array
      */
     protected $casts = [
         'status' => DomainStatus::class,
+        'deposit_type' => DomainDepositType::class,
+    ];
+
+    /**
+     * The model's default values for attributes.
+     *
+     * @var array
+     */
+    protected $attributes = [
+        'status' => DomainStatus::UPCOMING,
+        'deposit_type' => DomainDepositType::FIXED,
     ];
 }

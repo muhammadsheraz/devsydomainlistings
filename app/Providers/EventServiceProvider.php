@@ -19,6 +19,9 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        BidCreated::class => [
+            RefundPreviousHighestBidder::class,
+        ],
     ];
 
     protected $observers = [

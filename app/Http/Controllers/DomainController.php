@@ -12,12 +12,12 @@ use Illuminate\Support\Facades\DB;
 
 class DomainController extends Controller
 {
-    public function store(StoreDomainRequest $request)
+    public function add(StoreDomainRequest $request)
     {
         app()->make(DomainCreator::class)->handle($request->validated());
 
         return response()->json([
-            'message' => 'Domain created successfully',
+            'message' => 'Domain added successfully',
         ], 201);
     }
 }

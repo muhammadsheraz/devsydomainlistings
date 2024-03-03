@@ -22,5 +22,7 @@ Route::post('/login', [LoginController::class, 'authenticate']);
 Route::post('/login/2fa', [LoginController::class, 'twoFactorAuthentication']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('domains', [DomainController::class, 'store']);
+    Route::post('domains', [DomainController::class, 'add']);
 });
+
+Route::post('/bids', [BidController::class, 'create']);

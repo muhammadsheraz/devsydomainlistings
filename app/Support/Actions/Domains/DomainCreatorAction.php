@@ -4,8 +4,9 @@ namespace App\Support\Actions\Domains;
 
 use App\Models\Domain;
 use Illuminate\Support\Arr;
+use App\Contracts\Actions\Domains\DomainCreator;
 
-class DomainCreatorAction
+class DomainCreatorAction implements DomainCreator
 {
     public function handle(array $data)
     {
