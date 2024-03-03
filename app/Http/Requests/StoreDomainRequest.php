@@ -24,8 +24,8 @@ class StoreDomainRequest extends FormRequest
         return [
             'domain' => ['required', 'string', 'max:255'],
             'exists_since' => ['required', 'string','date_format:Y'],
-            'starting_date' => ['required', 'date_format:Y-m-d G:i:s',],
-            'ending_date' => ['required', 'date_format:Y-m-d G:i:s',],
+            'starting_date' => ['required', 'date_format:Y-m-d G:i:s|after_or_equal:now',],
+            'ending_date' => ['required', 'date_format:Y-m-d G:i:s|after:starting_date',],
             'min_bid_increment' => ['nullable', 'integer'],
             'starting_price' => ['nullable', 'integer'],
             'target_price' => ['nullable', 'integer'],
