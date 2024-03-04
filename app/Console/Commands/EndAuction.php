@@ -16,31 +16,49 @@ class EndAuction extends Command
 
     public function handle()
     {
+        $targetReached = false;
+
         $domains = Domain::where('status', DomainStatus::ACTIVE)
             ->where('ending_date', '>=', Carbon::now())
             ->get();
 
             foreach ($domains as $domain) {
-                $highestBid = $domain->bids()->orderBy('amount', 'desc')->first();
+                $domainBid = $domain->bids()
+                ->orderBy('amount', 'desc')
+                ->orderBy('created_at', 'asc')
+                ->first();
 
-                if (empty($domain->target_amount) || $highestBid->amount >= (int)$domain->target_amount) {
+                if (empty($domain->target_amount) || $domainBid->amount >= (int)$domain->target_amount) {
                     $domain->status = DomainStatus::SOLD;
-                    $highestBid->win = 1;
-                    $highestBid->save();
+                    $domainBid->win = 1;
+                    $domainBid->save();
+
+                    $targetReached = true;
                 } else {
                     $domain->status = DomainStatus::CLOSED;
                 }
 
                 $domain->save();
+                if ($targetReached) {
+                    // Target achieved: Sending email to the winner
+                    if ($domainBid->win && !$domainBid->notified) {
+                        $winner = $domainBid->user;
+                        SendAuctionWonEmail::dispatch($winner, $domain);
 
-                // Sending email to the winner
-                if ($highestBid->win && !$highestBid->notified) {
-                    $winner = $highestBid->user;
-                    SendAuctionWonEmail::dispatch($winner, $domain);
+                        $domainBid->notified = 1;
+                        $domainBid->save();
+                    }
 
-                    $highestBid->notified = 1;
-                    $highestBid->save();
+                    // Sending email to all bidders who lost
+                    // TBD
+                } else {
+                    // Target not achieved: Sending email to all bidders
+                    $bidders = $domain->bids()->with('user')->get();
+                    foreach ($bidders as $bidder) {
+                        SendAuctionLostEmail::dispatch($bidder->user, $domain);
+                    }
                 }
+
             }
     }
 }
