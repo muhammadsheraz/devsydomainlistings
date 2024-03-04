@@ -65,9 +65,13 @@ class LoginController extends Controller
                 'code' => $otp = random_int(1000, 9999),
                 'expires_at' => now()->addMinutes(2),
             ]);
+            Log::info('Login OTP ' . $otp . ' generated.');
+
 
             // Send the OTP to the user
             Mail::to($user)->send(new \App\Mail\TwoFactorAuthOtp($otp));
+
+            Log::info('Login OTP ' . $otp . ' Sent to User email : ' . $user->email);
 
             return response()->json([
                 'data' => [

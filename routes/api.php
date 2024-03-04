@@ -3,6 +3,7 @@
 use App\Http\Controllers\CreateAccount;
 use App\Http\Controllers\DomainController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\BidController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
