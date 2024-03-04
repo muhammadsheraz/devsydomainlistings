@@ -16,7 +16,7 @@ class EndAuction extends Command
 
     public function handle()
     {
-        $domains = Domain::where('status', DomainStatus::UPCOMING)
+        $domains = Domain::where('status', DomainStatus::ACTIVE)
             ->where('ending_date', '>=', Carbon::now())
             ->get();
 
