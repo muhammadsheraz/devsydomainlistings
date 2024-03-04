@@ -8,6 +8,7 @@ use App\Models\Domain;
 use App\Events\BidCreated;
 use Illuminate\Support\Facades\DB;
 use App\Enums\DomainStatus;
+use App\Http\Requests\CreateBidRequest;
 
 class BidController extends Controller
 {
@@ -16,18 +17,19 @@ class BidController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      */
-    public function create(Request $request)
+    public function create(CreateBidRequest $request)
     {
-        $request->validate([
-            'domain_id' => 'required|exists:domains,id',
-            'amount' => 'required|numeric|min:1',
-        ]);
-
         $domain = Domain::findOrFail($request->domain_id);
 
         // Check if the domain is not in the 'Upcoming' status
         if ($domain->status == DomainStatus::UPCOMING) {
             return response()->json(['error' => 'Cannot bid on a domain with Upcoming status.'], 400);
+        }
+
+        // Check if the current bid amount is less than or equal to the latest bid amount
+        $latestBid = $domain->bids()->latest('amount')->first();
+        if ($latestBid && $request->amount <= $latestBid->amount) {
+            return response()->json(['error' => 'The most recent bid exceeds the one you submitted.'], 400);
         }
 
         // Calculate the deposit amount based on the deposit type i.e. FIXED or PERCENTAGE
