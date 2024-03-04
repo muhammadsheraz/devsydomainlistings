@@ -21,7 +21,6 @@ class DomainCreatorAction implements DomainCreator
                     'starting_price',
                     'target_price',
                 ]),
-                ['status' => 'UPCOMING']
             )
         );
     }
