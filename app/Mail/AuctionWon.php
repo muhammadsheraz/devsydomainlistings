@@ -19,7 +19,7 @@ class AuctionWon extends Mailable implements ShouldQueue
     /**
      * Create a new message instance.
      */
-    public function __construct(String $domain, String $user_name)
+    public function __construct(String $user_name, String $domain)
     {
         $this->domain = $domain;
         $this->user_name = $user_name;
